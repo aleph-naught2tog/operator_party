@@ -41,8 +41,7 @@ defmodule Operators do
   end
 
   defp get_slot_index(args) when is_list(args) do
-    args
-    |> Enum.find_index(&is_slot?/1)
+    Enum.find_index(args, &is_slot?/1)
   end
 
   defp is_slot?(_name, _delimiter \\ :_)
@@ -54,10 +53,12 @@ defmodule Operators do
 
     slot_index = Enum.find_index(string_pieces, &is_string_slot?/1)
     {:::, slot_context_outer, [old_slot, binary_type]} = Enum.at(string_pieces, slot_index)
-    {to_string_piece, slot_context, _} = old_slot
-    new_slot = {:::, slot_context_outer, [{to_string_piece, slot_context, [new_value]}, binary_type]}
 
-    List.replace_at(string_pieces, slot_index, new_slot)
+    {to_string_piece, slot_context, _} = old_slot
+    new_slot = {to_string_piece, slot_context, [new_value]}
+    new_chunk = {:::, slot_context_outer, [new_slot, binary_type]}
+
+    List.replace_at(string_pieces, slot_index, new_chunk)
   end
 
   defp is_string_slot?({_, _, [{_, _, [{:_, _, nil}]}, _]}), do: true

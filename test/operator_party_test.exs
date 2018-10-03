@@ -10,14 +10,8 @@ defmodule OperatorPartyTest do
   end
 
   describe "one-arity functions should be equal for all operators" do
+    @describetag :arity_equivalence
     test "pipe-to-end should equal |> when arity === 1" do
-      result = "inner outer #{1 + 23} bears"
-
-      result
-      |> String.upcase()
-      <|> "test #{_} pink blue"
-      |> IO.inspect()
-
       arity_1_test_funcs()
       |> Enum.all?(fn {arg, func} ->
         operator_value = arg ~>> func.(_)
@@ -45,13 +39,27 @@ defmodule OperatorPartyTest do
     end
   end
 
-#  describe "pipe-alternative" do
-#
-#  end
-#
-#  describe "pipe-to-end" do
-#
-#  end
+  describe "pipe-alternative" do
+    @describetag :pipe_alternative
+  end
+
+  describe "pipe-to-end" do
+    @describetag :pipe_to_end
+  end
+
+  describe "string interpolation" do
+    @describetag :strings
+    test "should interpolate correctly with one string variable" do
+      color = "red"
+      control = "I have #{color} apples"
+
+      piped =
+        color
+        <|> "I have #{_} apples"
+
+      assert piped === control
+    end
+  end
 
   test "smoke check" do
     assert true
