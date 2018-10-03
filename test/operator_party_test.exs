@@ -7,7 +7,7 @@ defmodule OperatorPartyTest do
   doctest Operators
 
   describe "non-callables should fail" do
-    # How realistic is this in something where everything is basically callable?
+    # How realistic is this in something where everything is basically callable? Hrm.
   end
 
   describe "one-arity functions should be equal for all operators" do

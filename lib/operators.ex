@@ -24,6 +24,7 @@ defmodule Operators do
     `<<~`: pipe-alternative
     `~>`: pipe-to-position
     `<|>`: pipe-to-interpolation
+    `~~~`: template-strings
   """
 
   defmacro left ~>> {name, info, args} do
@@ -47,6 +48,16 @@ defmodule Operators do
     {name, info, new_args}
   end
 
+  defmacro ~~~right do
+    # TODO
+    # Basically, what I need here is for the interpolated part
+    #   to become ready for binding into...
+    # so really, this template string should return a function
+    IO.inspect(right)
+
+    right
+  end
+
   defp do_args({_, _, args}), do: args
 
   defp get_slot_index(ast_func) when is_tuple(ast_func) do
@@ -65,6 +76,9 @@ defmodule Operators do
 
   def interpolated_string(new_value, base) do
     {:<<>>, _, string_pieces} = base
+    string_pieces
+    |> Enum.find_index(&is_string_slot?/1)
+    |> (&Enum.at(string_pieces, &1)).()
 
     slot_index = Enum.find_index(string_pieces, &is_string_slot?/1)
     {:::, slot_context_outer, [old_slot, binary_type]} = Enum.at(string_pieces, slot_index)
