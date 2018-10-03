@@ -11,7 +11,14 @@ defmodule OperatorPartyTest do
 
   describe "one-arity functions should be equal for all operators" do
     test "pipe-to-end should equal |> when arity === 1" do
-      test_funcs()
+      result = "inner outer #{1 + 23} bears"
+
+      result
+      |> String.upcase()
+      <|> "test #{_} pink blue"
+      |> IO.inspect()
+
+      arity_1_test_funcs()
       |> Enum.all?(fn {arg, func} ->
         operator_value = arg ~>> func.(_)
         normal_value = arg |> func.()
@@ -20,7 +27,7 @@ defmodule OperatorPartyTest do
     end
 
     test "pipe-alternative should equal |> when arity === 1" do
-      test_funcs()
+      arity_1_test_funcs()
       |> Enum.all?(fn {arg, func} ->
         operator_value = arg <<~ func.(_)
         normal_value = arg |> func.()
@@ -29,7 +36,7 @@ defmodule OperatorPartyTest do
     end
 
     test "pipe-to-position should equal |> when arity === 1" do
-      test_funcs()
+      arity_1_test_funcs()
       |> Enum.all?(fn {arg, func} ->
         operator_value = arg ~> func.(_)
         normal_value = arg |> func.()
@@ -50,7 +57,7 @@ defmodule OperatorPartyTest do
     assert true
   end
 
-  def test_funcs do
+  def arity_1_test_funcs do
     [
       {"apples", &String.upcase/1},
       {45, &Integer.to_string/1},
