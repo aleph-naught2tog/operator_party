@@ -4,7 +4,27 @@ defmodule Operators do
   @type arguments :: [] | maybe_improper_list(ast_node, any)
   @type ast_node :: {atom, list, arguments}
 
-  @doc """
+  @moduledoc """
+    These operators are intended to enhance the functionality of the pipe operator,
+    by allowing things like piping to a particular argument, piping to the final argument,
+    piping into string interpolation, etc.
+
+    For all of these, you _must_ use explicit placeholders -- even the ones with a
+    known index, such as the `~>>` or `<<~`.
+
+    For example, say we wanted to replace all instances of the word "dog" with
+    the upper-cased version.
+
+        iex> subject = "There sure are a lot of dogs here at the Dog hotel!"
+        iex> dog_regex = ~r/dogs?/i
+        iex> subject ~> Regex.replace(dog_regex, _, fn term -> String.upcase(term) end)
+        "There sure are a lot of DOGS here at the DOG hotel!"
+
+        iex> subject = "There sure are a lot of dogs here at the Dog hotel!"
+        iex> dog_regex = ~r/dogs?/i
+        iex> dog_regex ~> Regex.replace(subject, fn term -> String.upcase(term) end)
+        "There sure are a lot of DOGS here at the DOG hotel!"
+
     `~>>`: pipe-to-end
     `<<~`: pipe-alternative
     `~>`: pipe-to-position
@@ -41,8 +61,7 @@ defmodule Operators do
   end
 
   defp get_slot_index(args) when is_list(args) do
-    args
-    |> Enum.find_index(&is_slot?/1)
+    Enum.find_index(args, &is_slot?/1)
   end
 
   defp is_slot?(_name, _delimiter \\ :_)
@@ -54,12 +73,23 @@ defmodule Operators do
 
     slot_index = Enum.find_index(string_pieces, &is_string_slot?/1)
     {:::, slot_context_outer, [old_slot, binary_type]} = Enum.at(string_pieces, slot_index)
-    {to_string_piece, slot_context, _} = old_slot
-    new_slot = {:::, slot_context_outer, [{to_string_piece, slot_context, [new_value]}, binary_type]}
 
-    List.replace_at(string_pieces, slot_index, new_slot)
+    {to_string_piece, slot_context, _} = old_slot
+    new_slot = {to_string_piece, slot_context, [new_value]}
+    new_chunk = {:::, slot_context_outer, [new_slot, binary_type]}
+
+    List.replace_at(string_pieces, slot_index, new_chunk)
   end
 
   defp is_string_slot?({_, _, [{_, _, [{:_, _, nil}]}, _]}), do: true
   defp is_string_slot?(_), do: false
+
+  defmodule MissingPlaceholderError do
+    defexception [:message]
+
+    @impl true
+    def exception(value) do
+
+    end
+  end
 end
