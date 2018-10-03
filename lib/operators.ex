@@ -20,11 +20,6 @@ defmodule Operators do
         iex> subject ~> Regex.replace(dog_regex, _, fn term -> String.upcase(term) end)
         "There sure are a lot of DOGS here at the DOG hotel!"
 
-        iex> subject = "There sure are a lot of dogs here at the Dog hotel!"
-        iex> dog_regex = ~r/dogs?/i
-        iex> dog_regex ~> Regex.replace(subject, fn term -> String.upcase(term) end)
-        "There sure are a lot of DOGS here at the DOG hotel!"
-
     `~>>`: pipe-to-end
     `<<~`: pipe-alternative
     `~>`: pipe-to-position
@@ -81,15 +76,10 @@ defmodule Operators do
     List.replace_at(string_pieces, slot_index, new_chunk)
   end
 
-  defp is_string_slot?({_, _, [{_, _, [{:_, _, nil}]}, _]}), do: true
-  defp is_string_slot?(_), do: false
+  @doc """
+    {:<<>>, _line, [{:::, _line, [{:_, _line, nil}]}, _]}
+  """
 
-  defmodule MissingPlaceholderError do
-    defexception [:message]
-
-    @impl true
-    def exception(value) do
-
-    end
-  end
+  def is_string_slot?({_, _, [{_, _, [{:_, _, nil}]}, _]}), do: true
+  def is_string_slot?(_), do: false
 end
