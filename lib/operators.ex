@@ -9,7 +9,8 @@ defmodule Operators do
     by allowing things like piping to a particular argument, piping to the final argument,
     piping into string interpolation, etc.
 
-    For all of these, you _must_ use explicit placeholders.
+    For all of these, you _must_ use explicit placeholders -- even the ones with a
+    known index, such as the `~>>` or `<<~`.
 
     For example, say we wanted to replace all instances of the word "dog" with
     the upper-cased version.
@@ -17,6 +18,11 @@ defmodule Operators do
         iex> subject = "There sure are a lot of dogs here at the Dog hotel!"
         iex> dog_regex = ~r/dogs?/i
         iex> subject ~> Regex.replace(dog_regex, _, fn term -> String.upcase(term) end)
+        "There sure are a lot of DOGS here at the DOG hotel!"
+
+        iex> subject = "There sure are a lot of dogs here at the Dog hotel!"
+        iex> dog_regex = ~r/dogs?/i
+        iex> dog_regex ~> Regex.replace(subject, fn term -> String.upcase(term) end)
         "There sure are a lot of DOGS here at the DOG hotel!"
 
     `~>>`: pipe-to-end
@@ -77,4 +83,13 @@ defmodule Operators do
 
   defp is_string_slot?({_, _, [{_, _, [{:_, _, nil}]}, _]}), do: true
   defp is_string_slot?(_), do: false
+
+  defmodule MissingPlaceholderError do
+    defexception [:message]
+
+    @impl true
+    def exception(value) do
+
+    end
+  end
 end
