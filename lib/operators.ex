@@ -8,6 +8,7 @@ defmodule Operators do
     `~>>`: pipe-to-end
     `<<~`: pipe-alternative
     `~>`: pipe-to-position
+    `<|>`: pipe-to-interpolation
   """
 
   defmacro left ~>> {name, info, args} do
@@ -26,7 +27,7 @@ defmodule Operators do
     {name, info, new_args}
   end
 
-  defmacro left <|> ({name, info, args} = base) do
+  defmacro left <|> ({name, info, _} = base) do
     new_args = interpolated_string(left, base)
     {name, info, new_args}
   end
@@ -49,25 +50,16 @@ defmodule Operators do
   defp is_slot?(_, _), do: false
 
   def interpolated_string(new_value, base) do
-    {:<<>>, _ , string_pieces} = base
-    find_slot = fn piece -> piece
-    |> parse_piece()
-    |> is_string_slot?() end
+    {:<<>>, _, string_pieces} = base
 
-    slot_index = Enum.find_index(string_pieces, find_slot) |> IO.inspect()
-    {:::, slot_context_outer, [old_slot,binary_type]} = Enum.at(string_pieces, slot_index)
+    slot_index = Enum.find_index(string_pieces, &is_string_slot?/1)
+    {:::, slot_context_outer, [old_slot, binary_type]} = Enum.at(string_pieces, slot_index)
     {to_string_piece, slot_context, _} = old_slot
-    new_slot = {:::, slot_context_outer, [{to_string_piece, slot_context, [new_value]},binary_type]}
+    new_slot = {:::, slot_context_outer, [{to_string_piece, slot_context, [new_value]}, binary_type]}
 
-    List.replace_at(string_pieces, slot_index,new_slot)
+    List.replace_at(string_pieces, slot_index, new_slot)
   end
 
-  defp parse_piece(piece) when is_binary(piece), do: piece
-  defp parse_piece({_, _, glue_arguments}) do
-    [{_, _, [slot]}, _] = glue_arguments
-    slot
-  end
-
-  def is_string_slot?({:_,_,nil}), do: true
-  def is_string_slot?(_), do: false
+  defp is_string_slot?({_, _, [{_, _, [{:_, _, nil}]}, _]}), do: true
+  defp is_string_slot?(_), do: false
 end
