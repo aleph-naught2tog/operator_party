@@ -4,6 +4,7 @@ defmodule OperatorPartyTest do
   import Operators
 
   doctest OperatorParty
+  doctest Operators
 
   describe "non-callables should fail" do
     # How realistic is this in something where everything is basically callable?

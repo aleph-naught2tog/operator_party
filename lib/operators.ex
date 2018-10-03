@@ -4,7 +4,21 @@ defmodule Operators do
   @type arguments :: [] | maybe_improper_list(ast_node, any)
   @type ast_node :: {atom, list, arguments}
 
-  @doc """
+  @moduledoc """
+    These operators are intended to enhance the functionality of the pipe operator,
+    by allowing things like piping to a particular argument, piping to the final argument,
+    piping into string interpolation, etc.
+
+    For all of these, you _must_ use explicit placeholders.
+
+    For example, say we wanted to replace all instances of the word "dog" with
+    the upper-cased version.
+
+        iex> subject = "There sure are a lot of dogs here at the Dog hotel!"
+        iex> dog_regex = ~r/dogs?/i
+        iex> subject ~> Regex.replace(dog_regex, _, fn term -> String.upcase(term) end)
+        "There sure are a lot of DOGS here at the DOG hotel!"
+
     `~>>`: pipe-to-end
     `<<~`: pipe-alternative
     `~>`: pipe-to-position
