@@ -13,29 +13,41 @@ defmodule OperatorPartyTest do
     @describetag :arity_equivalence
     test "pipe-to-end should equal |> when arity === 1" do
       arity_1_test_funcs()
-      |> Enum.all?(fn {arg, func} ->
-        operator_value = arg ~>> func.(_)
-        normal_value = arg |> func.()
-        operator_value === normal_value
-      end)
+      |> Enum.all?(
+           fn {arg, func} ->
+             operator_value = arg
+                              ~>> func.(_)
+             normal_value = arg
+                            |> func.()
+             operator_value === normal_value
+           end
+         )
     end
 
     test "pipe-alternative should equal |> when arity === 1" do
       arity_1_test_funcs()
-      |> Enum.all?(fn {arg, func} ->
-        operator_value = arg <<~ func.(_)
-        normal_value = arg |> func.()
-        operator_value === normal_value
-      end)
+      |> Enum.all?(
+           fn {arg, func} ->
+             operator_value = arg
+                              <<~ func.(_)
+             normal_value = arg
+                            |> func.()
+             operator_value === normal_value
+           end
+         )
     end
 
     test "pipe-to-position should equal |> when arity === 1" do
       arity_1_test_funcs()
-      |> Enum.all?(fn {arg, func} ->
-        operator_value = arg ~> func.(_)
-        normal_value = arg |> func.()
-        operator_value === normal_value
-      end)
+      |> Enum.all?(
+           fn {arg, func} ->
+             operator_value = arg
+                              ~> func.(_)
+             normal_value = arg
+                            |> func.()
+             operator_value === normal_value
+           end
+         )
     end
   end
 
@@ -59,6 +71,18 @@ defmodule OperatorPartyTest do
 
       assert piped === control
     end
+
+    test "should be able to handle presence of other known variables" do
+      color = "red"
+      quality = "tasty"
+      control = "I have #{color} apples that are #{quality}"
+
+      piped =
+        color
+        <|> "I have #{_} apples that are #{quality}"
+
+      assert piped === control
+    end
   end
 
   test "smoke check" do
@@ -69,7 +93,7 @@ defmodule OperatorPartyTest do
     [
       {"apples", &String.upcase/1},
       {45, &Integer.to_string/1},
-      {["a","b","c"], &Enum.count/1}
+      {["a", "b", "c"], &Enum.count/1}
     ]
   end
 end
