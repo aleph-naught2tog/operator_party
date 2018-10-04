@@ -35,6 +35,30 @@ defmodule OperatorParty do
   def anonymous do
     _LINE = [line: 69]
     _temp = fn variable -> "I have #{variable} apples" end
+
+    variable_for_token = {:variable, LINE, nil} # the token of the variable being input
+    interp_for_variable =
+      { # --- <INTERPOLATION> --- #
+        :<<>>,
+        LINE,
+        [
+          "I have ",
+          {
+            :::,
+            LINE,
+            [
+              {
+                {:., LINE, [Kernel, :to_string]},
+                LINE,
+                [variable_for_token]
+              },
+              {:binary, LINE, nil}
+            ]
+          },
+          " apples"
+        ] # --- </INTERPOLATION> --- #
+      }
+
     { # --- <FN_DEF> --- #
       :fn,
       LINE,
@@ -43,30 +67,50 @@ defmodule OperatorParty do
           :->,
           LINE,
           [
-            [{:variable, LINE, nil}], # the token of the variable being input
-            { # --- <INTERPOLATION> --- #
-              :<<>>,
-              LINE,
-              [
-                "I have ",
-                {
-                  :::,
-                  LINE,
-                  [
-                    {
-                      {:., LINE, [Kernel, :to_string]},
-                      LINE,
-                      [{:variable, LINE, nil}]
-                    },
-                    {:binary, LINE, nil}
-                  ]
-                },
-                " apples"
-              ] # --- </INTERPOLATION> --- #
-            }
+            variable_for_token,
+            interp_for_variable
           ]
         }
       ] # --- </FN_DEF> --- #
     }
+
+
+
+
+
+    {:fn, [],
+      [
+        {:->, [],
+          [
+            [{:token, [], StringInterpolation}],
+            {:<<>>, [],
+              [
+                "oranges and ",
+                {:::, [],
+                  [
+                    {{:., [], [Kernel, :to_string]}, [],
+                      [{:token, [], StringInterpolation}]},
+                    {:binary, [], StringInterpolation}
+                  ]}
+              ]}
+          ]}
+      ]}
+
+    {:fn, [line: 71],
+      [
+        {:->, [line: 71],
+          [
+            {:token, [line: 71], nil},
+            [
+              "oranges and ",
+              {:::, [line: 71],
+                [
+                  {{:., [line: 71], [Kernel, :to_string]}, [line: 71],
+                    [{:token, [line: 71], nil}]},
+                  {:binary, [line: 71], nil}
+                ]}
+            ]
+          ]}
+      ]}
   end
 end
