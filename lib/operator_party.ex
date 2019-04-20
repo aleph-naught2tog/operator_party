@@ -1,7 +1,6 @@
 defmodule OperatorParty do
   require Operators
-
-  def run() do
-
-  end
+  require StringInterpolation
+  import Operators
+  import StringInterpolation
 end

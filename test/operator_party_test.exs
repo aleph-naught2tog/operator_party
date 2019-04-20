@@ -1,13 +1,16 @@
 defmodule OperatorPartyTest do
   use ExUnit.Case
   require Operators
+  require StringInterpolation
+
   import Operators
+  import StringInterpolation
 
   doctest OperatorParty
   doctest Operators
 
   describe "non-callables should fail" do
-    # How realistic is this in something where everything is basically callable?
+    # How realistic is this in something where everything is basically callable? Hrm.
   end
 
   describe "one-arity functions should be equal for all operators" do
@@ -62,6 +65,13 @@ defmodule OperatorPartyTest do
 
   describe "string interpolation" do
     @describetag :strings
+    test "templates" do
+      variable = "pears"
+      fill = fn value -> "oranges and #{value}" end
+      template = ~~~"oranges and #{_}"
+      assert template.(variable) === fill.(variable)
+    end
+
     test "should interpolate correctly with one string variable" do
       color = "red"
       control = "I have #{color} apples"
@@ -81,6 +91,17 @@ defmodule OperatorPartyTest do
       piped =
         color
         <|> "I have #{_} apples that are #{quality}"
+
+      assert piped === control
+    end
+
+    test "should be able to literals" do
+      color = "red"
+      control = "I have #{15+24} apples that are #{color}"
+
+      piped =
+        color
+        <|> "I have #{15 + 24} apples that are #{_}"
 
       assert piped === control
     end

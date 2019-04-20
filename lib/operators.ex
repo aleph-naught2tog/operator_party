@@ -23,7 +23,6 @@ defmodule Operators do
     `~>>`: pipe-to-end
     `<<~`: pipe-alternative
     `~>`: pipe-to-position
-    `<|>`: pipe-to-interpolation
   """
 
   defmacro left ~>> {name, info, args} do
@@ -42,11 +41,6 @@ defmodule Operators do
     {name, info, new_args}
   end
 
-  defmacro left <|> ({name, info, _} = base) do
-    new_args = interpolated_string(left, base)
-    {name, info, new_args}
-  end
-
   defp do_args({_, _, args}), do: args
 
   defp get_slot_index(ast_func) when is_tuple(ast_func) do
@@ -62,24 +56,4 @@ defmodule Operators do
   defp is_slot?(_name, _delimiter \\ :_)
   defp is_slot?({name, _, _}, delimiter), do: name === delimiter
   defp is_slot?(_, _), do: false
-
-  def interpolated_string(new_value, base) do
-    {:<<>>, _, string_pieces} = base
-
-    slot_index = Enum.find_index(string_pieces, &is_string_slot?/1)
-    {:::, slot_context_outer, [old_slot, binary_type]} = Enum.at(string_pieces, slot_index)
-
-    {to_string_piece, slot_context, _} = old_slot
-    new_slot = {to_string_piece, slot_context, [new_value]}
-    new_chunk = {:::, slot_context_outer, [new_slot, binary_type]}
-
-    List.replace_at(string_pieces, slot_index, new_chunk)
-  end
-
-  @doc """
-    {:<<>>, _line, [{:::, _line, [{:_, _line, nil}]}, _]}
-  """
-
-  def is_string_slot?({_, _, [{_, _, [{:_, _, nil}]}, _]}), do: true
-  def is_string_slot?(_), do: false
 end
