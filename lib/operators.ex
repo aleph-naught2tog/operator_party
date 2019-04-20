@@ -1,4 +1,8 @@
 defmodule Operators do
+  @slot :_
+
+  @argument_index 2
+
   @type value :: any
   @type callable :: fun
   @type arguments :: [] | maybe_improper_list(ast_node, any)
@@ -25,35 +29,42 @@ defmodule Operators do
     `~>`: pipe-to-position
   """
 
-  defmacro left ~>> {name, info, args} do
-    new_args = List.replace_at(args, -1, left)
-    {name, info, new_args}
+  defmacro left ~>> input do
+    input
+    |> get_arguments()
+    |> List.replace_at(-1, left)
+    |> set_arguments(input)
   end
 
-  defmacro left <<~ {name, info, args} do
-    new_args = List.replace_at(args, 0, left)
-    {name, info, new_args}
+  defmacro left <<~ input do
+    input
+    |> get_arguments()
+    |> List.replace_at(0, left)
+    |> set_arguments(input)
   end
 
-  defmacro left ~> {name, info, args} do
-    slot_index = get_slot_index(args)
-    new_args = List.replace_at(args, slot_index, left)
-    {name, info, new_args}
+  defmacro left ~> input do
+    input
+    |> get_arguments()
+    |> get_slot_index()
+    |> (fn {args, pos} -> List.replace_at(args, pos, left) end).()
+    |> set_arguments(input)
   end
 
-  defp do_args({_, _, args}), do: args
+  defp get_arguments(call) when is_tuple(call), do: elem(call, @argument_index)
+  defp set_arguments(arguments, old_call), do: put_elem(old_call, @argument_index, arguments)
 
-  defp get_slot_index(ast_func) when is_tuple(ast_func) do
-    ast_func
-    |> do_args()
+  defp get_slot_index(call) when is_tuple(call) do
+    call
+    |> get_arguments()
     |> get_slot_index()
   end
 
-  defp get_slot_index(args) when is_list(args) do
-    Enum.find_index(args, &is_slot?/1)
+  defp get_slot_index(arguments) when is_list(arguments) do
+    {arguments, Enum.find_index(arguments, &is_slot?/1)}
   end
 
-  defp is_slot?(_name, _delimiter \\ :_)
+  defp is_slot?(name, delimiter \\ @slot)
   defp is_slot?({name, _, _}, delimiter), do: name === delimiter
   defp is_slot?(_, _), do: false
 end

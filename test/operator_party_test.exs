@@ -32,10 +32,8 @@ defmodule OperatorPartyTest do
       arity_1_test_funcs()
       |> Enum.all?(
            fn {arg, func} ->
-             operator_value = arg
-                              <<~ func.(_)
-             normal_value = arg
-                            |> func.()
+             operator_value = arg <<~ func.(_)
+             normal_value = arg |> func.()
              operator_value === normal_value
            end
          )
@@ -45,8 +43,7 @@ defmodule OperatorPartyTest do
       arity_1_test_funcs()
       |> Enum.all?(
            fn {arg, func} ->
-             operator_value = arg
-                              ~> func.(_)
+             operator_value = arg ~> func.(_)
              normal_value = arg
                             |> func.()
              operator_value === normal_value
