@@ -25,20 +25,17 @@ defmodule Operators do
     `~>`: pipe-to-position
   """
 
-  defmacro left
-           ~>> {name, info, args} do
+  defmacro left ~>> {name, info, args} do
     new_args = List.replace_at(args, -1, left)
     {name, info, new_args}
   end
 
-  defmacro left
-           <<~ {name, info, args} do
+  defmacro left <<~ {name, info, args} do
     new_args = List.replace_at(args, 0, left)
     {name, info, new_args}
   end
 
-  defmacro left
-           ~> {name, info, args} do
+  defmacro left ~> {name, info, args} do
     slot_index = get_slot_index(args)
     new_args = List.replace_at(args, slot_index, left)
     {name, info, new_args}

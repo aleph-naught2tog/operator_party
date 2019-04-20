@@ -7,8 +7,7 @@ defmodule StringInterpolation do
     `~~~`: template-strings
   """
 
-  defmacro left
-           <|> ({name, info, _} = base) do
+  defmacro left <|> ({name, info, _} = base) do
     new_args = interpolated_string(left, base)
     {name, info, new_args}
   end
